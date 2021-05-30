@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "236913876195",
+    "project_id": "hardware-4-home",
+    "storage_bucket": "hardware-4-home.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:236913876195:android:4236120b11a6fa18d4b9d6",
+        "android_client_info": {
+          "package_name": "com.h4h"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "236913876195-edjgsmfn4plc6gsfmatoac764j23fau5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.h4h",
+            "certificate_hash": "19b05d9b968a262d86cac4ac876f774a82b3848b"
+          }
+        },
+        {
+          "client_id": "236913876195-4fm73r17ta7qcct7j7iek9a7osnif430.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIYlAYmtjyD2umiZdNf8cZ26uo8sNQdLc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "236913876195-4fm73r17ta7qcct7j7iek9a7osnif430.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
