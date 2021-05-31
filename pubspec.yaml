@@ -48,6 +48,7 @@ dev_dependencies:
   pin_code_text_field: ^1.6.0
   mobile_number:
   country_code_picker: ^1.7.0
+  shared_preferences: ^0.5.8
 
 
 

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,6 +10,9 @@ import 'package:h4h/screen/Detail.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:h4h/globals.dart' as global;
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class search extends StatefulWidget {
   @override
@@ -18,6 +22,8 @@ class search extends StatefulWidget {
 class _searchState extends State<search> {
   final globalKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _controller = new TextEditingController();
+  var cart_item = "http://h4h.itfuturz.com:3000/order/userCartCount";
+  var get_prodlist = "http://h4h.itfuturz.com:3000/admin/getAllItem";
   bool isLoading = false;
   List data = [];
   List _list = [];
@@ -33,6 +39,8 @@ class _searchState extends State<search> {
   String lastWords = '';
   String lastError = '';
   int resultListened = 0;
+  var prod_in_cart = "0";
+  var cart_item_resp;
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
   bool _isSearching;
@@ -42,6 +50,38 @@ class _searchState extends State<search> {
     super.initState();
     getallitem();
     initSpeechState();
+  }
+
+  Future<String> getProductList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userid = prefs.getString(Session.id);
+    var res = await http.post(Uri.encodeFull(get_prodlist), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "user_id": userid,
+    });
+
+    //print(res.body);
+    setState(() {
+      var convert = json.decode(res.body)['cat_wise_products'];
+      data = convert;
+      data.forEach((data) {
+        _list.add(data);
+      });
+
+      print(_list);
+      /*print(convert);
+      print(data.length);*/
+    });
+    var cart_resp = await http.post(Uri.encodeFull(cart_item), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "user_id": userid,
+    });
+    setState(() {
+      cart_item_resp = json.decode(cart_resp.body);
+      global.in_cart = cart_item_resp['in_cart_items'];
+    });
   }
 
   getallitem() async {
@@ -216,12 +256,23 @@ class _searchState extends State<search> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                searchresult[index]["itemName"]
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    color: Colors.blue[300],
-                                                    fontSize: 18),
+                                              Container(
+                                                height: 20,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.50,
+                                                child: Text(
+                                                  searchresult[index]
+                                                          ["itemName"]
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      color: Colors.blue[300],
+                                                      fontSize: 18),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  softWrap: true,
+                                                ),
                                               ),
                                               Text(
                                                 searchresult[index]["volumeId"]
@@ -259,7 +310,16 @@ class _searchState extends State<search> {
                                               Row(
                                                 children: [
                                                   InkWell(
-                                                    onTap: () {},
+                                                    onTap: () {
+                                                      prod_in_cart =
+                                                          searchresult[index]
+                                                              ['in_cart'];
+                                                      removeProduct(
+                                                          prod_in_cart,
+                                                          searchresult[index]
+                                                              ['_id'],
+                                                          data[index]);
+                                                    },
                                                     child: Container(
                                                       height: 30,
                                                       width: 40,
@@ -296,7 +356,16 @@ class _searchState extends State<search> {
                                                     )),
                                                   ),
                                                   InkWell(
-                                                    onTap: () {},
+                                                    onTap: () {
+                                                      prod_in_cart =
+                                                          searchresult[index]
+                                                              ['in_cart'];
+                                                      addProduct(
+                                                          prod_in_cart,
+                                                          searchresult[index]
+                                                              ['_id'],
+                                                          searchresult[index]);
+                                                    },
                                                     child: Container(
                                                       height: 30,
                                                       width: 40,
@@ -393,12 +462,21 @@ class _searchState extends State<search> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                data[index]["itemName"]
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    color: Colors.blue[300],
-                                                    fontSize: 18),
+                                              Container(
+                                                height: 20,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.50,
+                                                child: Text(
+                                                  data[index]["itemName"]
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      color: Colors.blue[300],
+                                                      fontSize: 18),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
                                               ),
                                               Text(
                                                 data[index]["volumeId"][0]
@@ -435,7 +513,14 @@ class _searchState extends State<search> {
                                               Row(
                                                 children: [
                                                   InkWell(
-                                                    onTap: () {},
+                                                    onTap: () {
+                                                      prod_in_cart = data[index]
+                                                          ['in_cart'];
+                                                      removeProduct(
+                                                          prod_in_cart,
+                                                          data[index]['_id'],
+                                                          data[index]);
+                                                    },
                                                     child: Container(
                                                       height: 30,
                                                       width: 40,
@@ -472,7 +557,14 @@ class _searchState extends State<search> {
                                                     )),
                                                   ),
                                                   InkWell(
-                                                    onTap: () {},
+                                                    onTap: () {
+                                                      prod_in_cart = data[index]
+                                                          ['in_cart'];
+                                                      addProduct(
+                                                          prod_in_cart,
+                                                          data[index]['_id'],
+                                                          data[index]);
+                                                    },
                                                     child: Container(
                                                       height: 30,
                                                       width: 40,
@@ -592,6 +684,80 @@ class _searchState extends State<search> {
     setState(() {
       _isSearching = false;
       _controller.clear();
+    });
+  }
+
+  Future<void> addProduct(qty, prodId, index) async {
+    var my_qty = int.parse(qty);
+    setState(() {
+      for (var i = 0; i < data.length; i++) {
+        if (data[i] == index) {
+          my_qty++;
+          prod_in_cart = my_qty.toString();
+          data[i]['in_cart'] = prod_in_cart;
+        }
+      }
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userid = prefs.getString(Session.id);
+    var add_to_cart = "http://h4h.itfuturz.com:3000/order/addToCart";
+    print("prod_qty = " + qty);
+
+    var res = await http.post(Uri.encodeFull(add_to_cart), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "user_id": userid,
+      "product_id": prodId,
+      "quantity": prod_in_cart,
+    });
+    var resp = json.decode(res.body);
+    print(resp);
+    var cart_resp = await http.post(Uri.encodeFull(cart_item), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "user_id": userid,
+    });
+    setState(() {
+      cart_item_resp = json.decode(cart_resp.body);
+      global.in_cart = cart_item_resp['in_cart_items'];
+    });
+  }
+
+  Future<void> removeProduct(qty, prodId, index) async {
+    var my_qty = int.parse(qty);
+    setState(() {
+      for (var i = 0; i < data.length; i++) {
+        if (data[i] == index) {
+          my_qty--;
+          if (my_qty < 0) {
+            my_qty = 0;
+          }
+          prod_in_cart = my_qty.toString();
+          data[i]['in_cart'] = prod_in_cart;
+        }
+      }
+    });
+
+    var add_to_cart = "http://h4h.itfuturz.com:3000/order/addToCart";
+    print(qty);
+    // ignore: non_constant_identifier_names
+    var res = await http.post(Uri.encodeFull(add_to_cart), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "user_id": global.user_id,
+      "product_id": prodId,
+      "quantity": prod_in_cart,
+    });
+    var resp = json.decode(res.body);
+    print(resp);
+    var cart_resp = await http.post(Uri.encodeFull(cart_item), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "user_id": global.user_id,
+    });
+    setState(() {
+      cart_item_resp = json.decode(cart_resp.body);
+      global.in_cart = cart_item_resp['in_cart_items'];
     });
   }
 }
