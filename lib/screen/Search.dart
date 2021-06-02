@@ -349,7 +349,9 @@ class _searchState extends State<search> {
                                                     color: Colors.blue[100],
                                                     child: Center(
                                                         child: Text(
-                                                      "00",
+                                                      searchresult[index]
+                                                              ['in_cart']
+                                                          .toString(),
                                                       style: TextStyle(
                                                           color:
                                                               Colors.black45),
@@ -550,7 +552,7 @@ class _searchState extends State<search> {
                                                     color: Colors.blue[100],
                                                     child: Center(
                                                         child: Text(
-                                                      "00",
+                                                      data[index]['in_cart'],
                                                       style: TextStyle(
                                                           color:
                                                               Colors.black45),
