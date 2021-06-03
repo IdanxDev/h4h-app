@@ -48,22 +48,19 @@ class _searchState extends State<search> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getallitem();
+    getProductList();
     initSpeechState();
   }
 
   Future<String> getProductList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var userid = prefs.getString(Session.id);
-    var res = await http.post(Uri.encodeFull(get_prodlist), headers: {
-      "Accept": "application/json"
-    }, body: {
-      "user_id": userid,
-    });
+    var res = await http.post(Uri.encodeFull(get_prodlist),
+        headers: {"Accept": "application/json"}, body: {});
 
-    //print(res.body);
+    print(res.body);
     setState(() {
-      var convert = json.decode(res.body)['cat_wise_products'];
+      var convert = json.decode(res.body)['Data'];
       data = convert;
       data.forEach((data) {
         _list.add(data);
@@ -78,13 +75,14 @@ class _searchState extends State<search> {
     }, body: {
       "user_id": userid,
     });
+
     setState(() {
       cart_item_resp = json.decode(cart_resp.body);
       global.in_cart = cart_item_resp['in_cart_items'];
     });
   }
 
-  getallitem() async {
+  /* getallitem() async {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -108,7 +106,7 @@ class _searchState extends State<search> {
     } on SocketException catch (_) {
       Fluttertoast.showToast(msg: "No Internet Connection");
     }
-  }
+  }*/
 
   void searchOperation(String searchText) {
     searchresult.clear();
@@ -405,7 +403,7 @@ class _searchState extends State<search> {
                           ),
                         ))
                 : ListView.builder(
-                    itemCount: data.length,
+                    itemCount: _list.length,
                     scrollDirection: Axis.vertical,
                     itemBuilder: (BuildContext context, int index) => InkWell(
                           onTap: () {
@@ -413,7 +411,7 @@ class _searchState extends State<search> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => detail(
-                                          data: data[index],
+                                          data: _list[index],
                                         )));
                           },
                           child: Padding(
@@ -438,13 +436,13 @@ class _searchState extends State<search> {
                                         decoration: BoxDecoration(
                                             color: Colors.grey,
                                             image: DecorationImage(
-                                                image: data[index]
+                                                image: _list[index]
                                                             ["itemImage"] ==
                                                         null
                                                     ? AssetImage(
                                                         "images/h4hblk.png")
                                                     : NetworkImage(image_url +
-                                                        data[index]
+                                                        _list[index]
                                                             ["itemImage"]),
                                                 fit: BoxFit.fill),
                                             borderRadius:
@@ -471,7 +469,7 @@ class _searchState extends State<search> {
                                                         .width *
                                                     0.50,
                                                 child: Text(
-                                                  data[index]["itemName"]
+                                                  _list[index]["itemName"]
                                                       .toString(),
                                                   style: TextStyle(
                                                       color: Colors.blue[300],
@@ -481,7 +479,7 @@ class _searchState extends State<search> {
                                                 ),
                                               ),
                                               Text(
-                                                data[index]["volumeId"][0]
+                                                _list[index]["volumeId"][0]
                                                         ["volumeName"]
                                                     .toString(),
                                                 style: TextStyle(
@@ -501,7 +499,8 @@ class _searchState extends State<search> {
                                                         FontWeight.bold),
                                               ),
                                               Text(
-                                                data[index]["price"].toString(),
+                                                _list[index]["price"]
+                                                    .toString(),
                                                 style: TextStyle(
                                                     color: Colors.black45,
                                                     fontSize: 18,
@@ -516,12 +515,13 @@ class _searchState extends State<search> {
                                                 children: [
                                                   InkWell(
                                                     onTap: () {
-                                                      prod_in_cart = data[index]
-                                                          ['in_cart'];
+                                                      prod_in_cart =
+                                                          _list[index]
+                                                              ['in_cart'];
                                                       removeProduct(
                                                           prod_in_cart,
-                                                          data[index]['_id'],
-                                                          data[index]);
+                                                          _list[index]['_id'],
+                                                          _list[index]);
                                                     },
                                                     child: Container(
                                                       height: 30,
@@ -546,26 +546,25 @@ class _searchState extends State<search> {
                                                       ),
                                                     ),
                                                   ),
-                                                  Container(
+                                                  /* Container(
                                                     height: 30,
                                                     width: 40,
                                                     color: Colors.blue[100],
                                                     child: Center(
                                                         child: Text(
-                                                      data[index]['in_cart'],
+                                                      "1",
                                                       style: TextStyle(
                                                           color:
                                                               Colors.black45),
                                                     )),
-                                                  ),
+                                                  ),*/
                                                   InkWell(
                                                     onTap: () {
-                                                      prod_in_cart = data[index]
-                                                          ['in_cart'];
+                                                      prod_in_cart = "1";
                                                       addProduct(
                                                           prod_in_cart,
-                                                          data[index]['_id'],
-                                                          data[index]);
+                                                          _list[index]['_id'],
+                                                          _list[index]);
                                                     },
                                                     child: Container(
                                                       height: 30,

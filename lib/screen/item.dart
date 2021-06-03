@@ -8,6 +8,7 @@ import 'package:h4h/component/appbar.dart';
 import 'package:h4h/screen/Detail.dart';
 import 'package:badges/badges.dart';
 import 'package:h4h/screen/ProductDetail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class item extends StatefulWidget {
   String catid, subcatid, name;
@@ -19,11 +20,13 @@ class item extends StatefulWidget {
 class _itemState extends State<item> {
   bool isLoading = false;
   List data = [];
+  List cartdata = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getitem();
+    getcart();
   }
 
   getitem() async {
@@ -43,6 +46,33 @@ class _itemState extends State<item> {
           if (responseData.IsSuccess == true) {
             setState(() {
               data = responseData.Data;
+              isLoading = false;
+              print("123456");
+              print(data);
+            });
+          }
+        });
+      }
+    } on SocketException catch (_) {
+      Fluttertoast.showToast(msg: "No Internet Connection");
+    }
+  }
+
+  getcart() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        setState(() {
+          isLoading = true;
+        });
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var body = {"userId": prefs.getString(Session.id)};
+
+        Services.apiHandler(apiName: "admin/getItemOfCategory", body: body)
+            .then((responseData) async {
+          if (responseData.IsSuccess == true) {
+            setState(() {
+              cartdata = responseData.Data;
               isLoading = false;
               print("123456");
               print(data);
@@ -207,7 +237,9 @@ class _itemState extends State<item> {
                                                 )),
                                               ),
                                               InkWell(
-                                                onTap: () {},
+                                                onTap: () {
+                                                /*  additemincart(  data[index]["itemId"],qty,data[index]["price"],data[index]["itemName"]);*/
+                                                },
                                                 child: Container(
                                                   height: 30,
                                                   width: 40,
@@ -249,5 +281,38 @@ class _itemState extends State<item> {
         ],
       ),
     );
+  }
+
+  void additemincart(itemID,Qty,price,itemname) async{
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        setState(() {
+          isLoading = true;
+        });
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var body = {"userId": prefs.getString(Session.id),
+
+          "itemId": "60acbd8b5cd7b13350b2b5a2",
+          "quantity": 1,
+          "price": 300,
+          "itemName": "item 1"
+        };
+
+        Services.apiHandler(apiName: "order/addToCart", body: body)
+            .then((responseData) async {
+          if (responseData.IsSuccess == true) {
+            setState(() {
+              cartdata = responseData.Data;
+              isLoading = false;
+
+              print(data);
+            });
+          }
+        });
+      }
+    } on SocketException catch (_) {
+      Fluttertoast.showToast(msg: "No Internet Connection");
+    }
   }
 }

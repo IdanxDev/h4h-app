@@ -45,7 +45,7 @@ AppBar myAppBar(BuildContext context, String appbarname) {
       ),
       Badge(
         badgeContent: Text(
-          global.in_cart,
+          global.in_cart.toString(),
           style: TextStyle(color: Colors.white),
         ),
         position: BadgePosition.topEnd(top: 3, end: 5),

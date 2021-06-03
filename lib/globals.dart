@@ -6,3 +6,4 @@ String fullname = "";
 String email = "";
 String contact = "";
 String in_cart = "0";
+List mycart = [];

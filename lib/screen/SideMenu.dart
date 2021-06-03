@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:h4h/screen/MyAddress.dart';
+import 'package:h4h/screen/MyProfile.dart';
 
 //import 'package:happick/globals.dart' as global;
 //import 'package:shared_preferences/shared_preferences.dart';
@@ -86,8 +88,8 @@ class _SideMenuState extends State<SideMenu> {
               style: TextStyle(color: Colors.black),
             ),
             onTap: () {
-              /*    Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MyProfile()));*/
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MyProfile()));
             },
           ),
           ListTile(
@@ -114,8 +116,8 @@ class _SideMenuState extends State<SideMenu> {
               style: TextStyle(color: Colors.black),
             ),
             onTap: () {
-              /*    Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MyAddress()));*/
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MyAddress()));
             },
           ),
           ListTile(
@@ -132,22 +134,9 @@ class _SideMenuState extends State<SideMenu> {
                   MaterialPageRoute(builder: (context) => ContactUs()));*/
             },
           ),
-          ListTile(
-            leading: Icon(
-              Icons.featured_play_list,
-              color: Colors.black54,
-            ),
-            title: Text(
-              "My Subscription",
-              style: TextStyle(color: Colors.black),
-            ),
-            onTap: () {
-              /*       Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => MySub()));*/
-            },
-          ),
+
           //LOGOUT CODE START
-          /*ListTile(
+          ListTile(
             leading: Icon(
               Icons.lock,
               color: Colors.black54,
@@ -156,21 +145,9 @@ class _SideMenuState extends State<SideMenu> {
               "Log Out",
               style: TextStyle(color: Colors.black),
             ),
-            onTap: () async {
-              SharedPreferences pref = await SharedPreferences.getInstance();
-              pref.remove('isLoggedIn');
-              pref.remove("user_id");
-              pref.remove("full_name");
-              pref.remove("contact");
-              pref.remove("email");
-              //_storeLoggedInStatus(true);
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainLogin()),
-                  (route) => false);
-            },
+            onTap: () async {},
             // onTap: ()=>debugPrint("Loged Out"),
-          ),*/
+          ),
           //LOGOUT CODE OVER
           Padding(
             padding: EdgeInsets.only(top: 40, left: 10),
