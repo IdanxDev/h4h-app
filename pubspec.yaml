@@ -49,6 +49,7 @@ dev_dependencies:
   mobile_number:
   country_code_picker: ^1.7.0
   shared_preferences: ^0.5.8
+  flutter_open_whatsapp: ^0.1.2
 
 
 

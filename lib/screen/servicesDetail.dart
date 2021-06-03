@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:h4h/Comman/Constants.dart';
 import 'package:h4h/component/appbar.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_open_whatsapp/flutter_open_whatsapp.dart';
 
 class servicesDetail extends StatefulWidget {
   String servicesname;
@@ -13,8 +15,28 @@ class servicesDetail extends StatefulWidget {
 class _servicesDetailState extends State<servicesDetail> {
   String unitHintText = "Select Area";
   String ratt;
+  String _platformVersion = 'Unknown';
   @override
   Widget build(BuildContext context) {
+    Future<void> initPlatformState() async {
+      String platformVersion;
+      // Platform messages may fail, so we use a try/catch PlatformException.
+      try {
+        platformVersion = await FlutterOpenWhatsapp.platformVersion;
+      } on PlatformException {
+        platformVersion = 'Failed to get platform version.';
+      }
+
+      // If the widget was removed from the tree while the asynchronous platform
+      // message was in flight, we want to discard the reply rather than calling
+      // setState to update our non-existent appearance.
+      if (!mounted) return;
+
+      setState(() {
+        _platformVersion = platformVersion;
+      });
+    }
+
     return Scaffold(
       appBar: myAppBar(context, widget.servicesname),
       body: Padding(
@@ -158,14 +180,20 @@ class _servicesDetailState extends State<servicesDetail> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceEvenly,
                                           children: [
-                                            Container(
-                                              height: 40,
-                                              width: 40,
-                                              decoration: BoxDecoration(
-                                                  image: DecorationImage(
-                                                image: AssetImage(
-                                                    "images/whatsapp.png"),
-                                              )),
+                                            InkWell(
+                                              onTap: () {
+                                                FlutterOpenWhatsapp
+                                                    .sendSingleMessage("", "");
+                                              },
+                                              child: Container(
+                                                height: 40,
+                                                width: 40,
+                                                decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                  image: AssetImage(
+                                                      "images/whatsapp.png"),
+                                                )),
+                                              ),
                                             ),
                                             SizedBox(
                                               width: 15,
