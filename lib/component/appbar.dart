@@ -9,11 +9,9 @@ import 'package:h4h/globals.dart' as global;
 AppBar myAppBar(BuildContext context, String appbarname) {
   var firstchar = appbarname[0].toUpperCase();
   var remaincher = appbarname.substring(1);
-  print(remaincher);
   var uppercase = firstchar + remaincher;
-  print(uppercase);
-  print(firstchar.toUpperCase());
   return AppBar(
+
     backgroundColor: Colors.blue[300],
     //backgroundColor: Color.fromARGB(1, 8, 64, 106),
     title: Text(

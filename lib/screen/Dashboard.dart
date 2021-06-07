@@ -13,6 +13,7 @@ import 'package:h4h/screen/Detail.dart';
 import 'package:h4h/screen/SideMenu.dart';
 import 'package:h4h/screen/Subcat.dart';
 import 'package:h4h/screen/item.dart';
+import 'package:h4h/globals.dart' as global;
 
 class dashboard extends StatefulWidget {
   @override
@@ -31,6 +32,7 @@ class _dashboardState extends State<dashboard> {
     getcategory();
     getbanner();
     mostpopular();
+    getCartTotalItems();
   }
 
   getcategory() async {
@@ -103,6 +105,38 @@ class _dashboardState extends State<dashboard> {
               print("123456");
               print(data);
             });
+          }
+        });
+      }
+    } on SocketException catch (_) {
+      Fluttertoast.showToast(msg: "No Internet Connection");
+    }
+  }
+
+  getCartTotalItems() async {
+    try {
+      print("Get Cart User ID = "+global.user_id.toString());
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        var body = {"userId":global.user_id};
+
+        Services.apiHandler(apiName: "order/userCartCount", body: body)
+            .then((responseData) async {
+          if (responseData.IsSuccess == true) {
+            var incart = responseData.Data.toString();
+            print("GLOBAL ======");
+            print(incart);
+            /*if(incart  0){
+              incart = "0";
+              print("in_cart === "+ incart.toString());
+            }else{
+              incart = incart;
+              print("in_cart === "+ incart.toString());
+            }*/
+            setState(() {
+              global.in_cart = incart.toString();
+            });
+            print("In Cart = " + incart.toString());
           }
         });
       }

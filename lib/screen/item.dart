@@ -9,6 +9,7 @@ import 'package:h4h/screen/Detail.dart';
 import 'package:badges/badges.dart';
 import 'package:h4h/screen/ProductDetail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:h4h/globals.dart' as global;
 
 class item extends StatefulWidget {
   String catid, subcatid, name;
@@ -21,26 +22,50 @@ class _itemState extends State<item> {
   bool isLoading = false;
   List data = [];
   List cartdata = [];
+  var prod_in_cart = "0";
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getitem();
     getcart();
+    getCartTotalItems();
   }
 
+  getCartTotalItems() async {
+    try {
+      print("Get Cart User ID = "+ global.user_id.toString());
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        var body = {"userId":global.user_id};
+
+        Services.apiHandler(apiName: "order/userCartCount", body: body)
+            .then((responseData) async {
+          if (responseData.IsSuccess == true) {
+            var incart = responseData.Data;
+            setState(() {
+              global.in_cart = incart.toString();
+            });
+          }
+        });
+      }
+    } on SocketException catch (_) {
+      Fluttertoast.showToast(msg: "No Internet Connection");
+    }
+  }
   getitem() async {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
         setState(() {
           isLoading = true;
         });
         var body = {
           "categoryId": widget.catid,
           "subCategoryId": widget.subcatid,
+          "userId": prefs.getString(Session.id)
         };
-
         Services.apiHandler(apiName: "admin/getItemOfCategory", body: body)
             .then((responseData) async {
           if (responseData.IsSuccess == true) {
@@ -74,8 +99,6 @@ class _itemState extends State<item> {
             setState(() {
               cartdata = responseData.Data;
               isLoading = false;
-              print("123456");
-              print(data);
             });
           }
         });
@@ -200,7 +223,10 @@ class _itemState extends State<item> {
                                           Row(
                                             children: [
                                               InkWell(
-                                                onTap: () {},
+                                                onTap: () {
+                                                  prod_in_cart = data[index]['quantity'].toString();
+                                                  removeProduct(prod_in_cart, data[index]["_id"], data[index], data[index]["itemName"], data[index]["price"]);
+                                                },
                                                 child: Container(
                                                   height: 30,
                                                   width: 40,
@@ -231,14 +257,15 @@ class _itemState extends State<item> {
                                                 color: Colors.blue[100],
                                                 child: Center(
                                                     child: Text(
-                                                  "00",
+                                                  data[index]["quantity"].toString(),
                                                   style: TextStyle(
                                                       color: Colors.black45),
                                                 )),
                                               ),
                                               InkWell(
                                                 onTap: () {
-                                                /*  additemincart(  data[index]["itemId"],qty,data[index]["price"],data[index]["itemName"]);*/
+                                                  prod_in_cart = data[index]['quantity'].toString();
+                                                  addProduct(prod_in_cart, data[index]["_id"], data[index], data[index]["itemName"], data[index]["price"]);
                                                 },
                                                 child: Container(
                                                   height: 30,
@@ -283,7 +310,7 @@ class _itemState extends State<item> {
     );
   }
 
-  void additemincart(itemID,Qty,price,itemname) async{
+  void additemincart(itemID,Qty) async{
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -291,12 +318,10 @@ class _itemState extends State<item> {
           isLoading = true;
         });
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        var body = {"userId": prefs.getString(Session.id),
-
-          "itemId": "60acbd8b5cd7b13350b2b5a2",
-          "quantity": 1,
-          "price": 300,
-          "itemName": "item 1"
+        var body = {
+          "userId": prefs.getString(Session.id),
+          "itemId": itemID,
+          "quantity": Qty,
         };
 
         Services.apiHandler(apiName: "order/addToCart", body: body)
@@ -305,14 +330,45 @@ class _itemState extends State<item> {
             setState(() {
               cartdata = responseData.Data;
               isLoading = false;
-
+              print("ITEM ADDED IN CART");
               print(data);
             });
+            await getCartTotalItems();
           }
         });
       }
     } on SocketException catch (_) {
       Fluttertoast.showToast(msg: "No Internet Connection");
     }
+  }
+  void addProduct(qty,prodId,index,prodName,price) async {
+    var my_qty = int.parse(qty);
+    setState(() {
+      for(var i=0 ; i<data.length; i++){
+        if(data[i] == index){
+          my_qty++ ;
+          prod_in_cart = my_qty.toString();
+          data[i]['quantity'] = prod_in_cart;
+        }
+      }
+    });
+    additemincart(prodId,prod_in_cart);
+
+  }
+  void removeProduct(qty,prodId,index,prodName,price) async{
+    var my_qty = int.parse(qty);
+    setState(() {
+      for(var i=0 ; i<data.length; i++){
+        if(data[i] == index){
+          my_qty-- ;
+          if(my_qty<0){
+            my_qty = 0;
+          }
+          prod_in_cart = my_qty.toString();
+          data[i]['quantity'] = prod_in_cart;
+        }
+      }
+    });
+    additemincart(prodId,prod_in_cart);
   }
 }

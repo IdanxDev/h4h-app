@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:h4h/Comman/services.dart';
 import 'package:h4h/component/appbar.dart';
 import 'package:h4h/globals.dart' as global;
+import 'package:h4h/screen/Dashboard.dart';
 import 'package:h4h/screen/login.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,53 +16,88 @@ class mycart extends StatefulWidget {
 }
 
 class _mycartState extends State<mycart> {
-  var get_prodlist = "http://admin.happick.in/api/get_cart_products";
-  var cart_item = "http://admin.happick.in/api/get_cart_badge_counter";
+  /*var get_prodlist = "http://admin.happick.in/api/get_cart_products";
+  var cart_item = "http://admin.happick.in/api/get_cart_badge_counter";*/
   var prod_in_cart = "0";
   List data = [];
   var resp;
   var cart_total = "0";
-  var in_cart_items = "";
+  var in_cart_items = "0";
   int len = 0;
   var cart_item_resp;
   var status = "";
-
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
     // this.getProductList();
+    getCartItems();
+    getCartTotalItems();
   }
 
-/*
-  Future<String> getProductList() async {
-    var res = await http.post(Uri.encodeFull(get_prodlist), headers: {
-      "Accept": "application/json"
-    }, body: {
-      "secrete": "dacb465d593bd139a6c28bb7289fa798",
-      "user_id": global.user_id,
-    });
-    //print(res.body);
-    setState(() {
-      var resp = json.decode(res.body);
-      status = resp['status'];
-      cart_total = resp['cart_total'];
-      //print(cart_total.runtimeType);
-      in_cart_items = resp['in_cart_items'];
-      var convert = json.decode(res.body)['cart'];
-      data = convert;
-    });
-    var cart_resp = await http.post(Uri.encodeFull(cart_item), headers: {
-      "Accept": "application/json"
-    }, body: {
-      "secrete": "dacb465d593bd139a6c28bb7289fa798",
-      "user_id": global.user_id,
-    });
-    setState(() {
-      cart_item_resp = json.decode(cart_resp.body);
-      global.in_cart = cart_item_resp['in_cart_items'];
-    });
+  void getCartItems() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        setState(() {
+          isLoading = true;
+        });
+        var body = {
+          "userId":global.user_id
+        };
+
+        Services.apiHandler(apiName: "order/getUserCart", body: body)
+            .then((responseData) async {
+          if (responseData.IsSuccess == true) {
+            setState(() {
+              data = responseData.Data;
+              if(data.length > 0){
+                isLoading = false;
+                print(data[0]["itemId"][0]["itemImage"]);
+                in_cart_items = data.length.toString();
+              }else{
+                status = "0";
+              }
+
+            });
+          }
+        });
+      }
+    } on SocketException catch (_) {
+      Fluttertoast.showToast(msg: "No Internet Connection");
+    }
   }
-*/
+  getCartTotalItems() async {
+    try {
+      print("Get Cart User ID = "+global.user_id.toString());
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        var body = {"userId":global.user_id};
+
+        Services.apiHandler(apiName: "order/userCartCount", body: body)
+            .then((responseData) async {
+          if (responseData.IsSuccess == true) {
+            var incart = responseData.Data;
+            print("GLOBAL ======");
+            print(incart);
+            /*if(incart.length <= 0){
+              incart = "0";
+              print("in_cart === "+ incart.toString());
+            }else{
+              incart = incart;
+              print("in_cart === "+ incart.toString());
+            }*/
+            setState(() {
+              global.in_cart = incart.toString();
+            });
+            print("In Cart = " + incart.toString());
+          }
+        });
+      }
+    } on SocketException catch (_) {
+      Fluttertoast.showToast(msg: "No Internet Connection");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +193,7 @@ class _mycartState extends State<mycart> {
           ],
         ),
         Image.asset(
+          //'images/emptycart.jpg',
           'images/emptycart.png',
           width: 200.0,
           height: 200.0,
@@ -184,12 +224,13 @@ class _mycartState extends State<mycart> {
           padding: EdgeInsets.all(25),
         ),
         Center(
+          // ignore: deprecated_member_use
           child: FlatButton(
             child: Text(
               "ADD PRODUCTS",
               style: TextStyle(fontSize: 18),
             ),
-            color: Color(4278402411),
+            color: Colors.blue[300],
             textColor: Colors.white,
             disabledColor: Colors.grey,
             disabledTextColor: Colors.black,
@@ -197,10 +238,10 @@ class _mycartState extends State<mycart> {
                 left: 90.0, right: 90.0, bottom: 18.0, top: 18.0),
             splashColor: Colors.transparent,
             onPressed: () {
-              /*      Navigator.push(
+                    Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SidebarMenu()));*/
+                      builder: (context) => dashboard()));
             },
           ),
         ),
@@ -264,10 +305,7 @@ class _mycartState extends State<mycart> {
               ),
             ],
           ),
-          Container(
-            margin: EdgeInsets.only(top: 10),
-            //height: 580,
-            height: height,
+          Expanded(
             child: ListView.builder(
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
@@ -302,7 +340,7 @@ class _mycartState extends State<mycart> {
                           height: 80,
                           width: 80,
                           child: Image.network(
-                            data[index]['image_path'],
+                            data[index]["itemId"][0]["itemImage"],
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -321,7 +359,7 @@ class _mycartState extends State<mycart> {
                                 SizedBox(
                                     width: 180.0,
                                     child: Text(
-                                      data[index]['product_name'],
+                                      data[index]["itemId"][0]["itemName"],
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       softWrap: false,
@@ -339,12 +377,12 @@ class _mycartState extends State<mycart> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Quantity : " +
-                                    data[index]['quantity'] +
+                                    data[index]['quantity'].toString() +
                                     " x " +
-                                    data[index]['order_price']),
+                                    data[index]["itemId"][0]['price']),
                                 Text(
                                   '                    \u{20B9} ' +
-                                      data[index]['product_total_price'],
+                                      data[index]['totalAmount'].toString(),
                                   //"250",
                                   style: TextStyle(
                                     color: Colors.red,
@@ -356,7 +394,7 @@ class _mycartState extends State<mycart> {
                             Padding(
                               padding: EdgeInsets.only(top: 10.0),
                             ),
-                            Row(
+                            /*Row(
                               children: [
                                 Container(
                                   decoration: BoxDecoration(
@@ -379,10 +417,10 @@ class _mycartState extends State<mycart> {
                                       print("remove product........");
                                       prod_in_cart = data[index]['quantity'];
                                       //print("cart="+prod_in_cart);
-                                      /*    removeProduct(
+                                      *//*    removeProduct(
                                           data[index]['quantity'],
                                           data[index]['product_id'],
-                                          data[index]);*/
+                                          data[index]);*//*
                                     },
                                     child: Center(
                                       child: Icon(
@@ -397,7 +435,7 @@ class _mycartState extends State<mycart> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20.0),
                                   child: Text(
-                                    data[index]['quantity'],
+                                    data[index]['quantity'].toString(),
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18.0,
@@ -420,10 +458,12 @@ class _mycartState extends State<mycart> {
                                     onPressed: () {
                                       print("add product........");
                                       prod_in_cart = data[index]['quantity'];
-                                      /*addProduct(
+                                      */
+                            /*addProduct(
                                           prod_in_cart,
                                           data[index]['product_id'],
                                           data[index]);*/
+                            /*
                                     },
                                     child: Center(
                                       child: Icon(
@@ -433,6 +473,83 @@ class _mycartState extends State<mycart> {
                                       ),
                                     ),
                                   ),
+                                ),
+                              ],
+                            ),*/
+                            Row(
+                              children: [
+                                Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        prod_in_cart = data[index]['quantity'].toString();
+                                        //removeProduct(prod_in_cart, data[index]["_id"], data[index], data[index]["itemName"], data[index]["price"]);
+                                      },
+                                      child: Container(
+                                        height: 30,
+                                        width: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadiusDirectional
+                                              .only(
+                                              topStart: Radius
+                                                  .circular(
+                                                  8.0),
+                                              bottomStart: Radius
+                                                  .circular(
+                                                  8.0)),
+                                          color: Colors.blue[300],
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.remove,
+                                            color: Colors.white,
+                                            size: 20.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 30,
+                                      width: 40,
+                                      color: Colors.blue[100],
+                                      child: Center(
+                                          child: Text(
+                                            data[index]["quantity"].toString(),
+                                            style: TextStyle(
+                                                color: Colors.black45),
+                                          )),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        prod_in_cart = data[index]['quantity'].toString();
+                                        //addProduct(prod_in_cart, data[index]["_id"], data[index], data[index]["itemName"], data[index]["price"]);
+                                      },
+                                      child: Container(
+                                        height: 30,
+                                        width: 40,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.add,
+                                            color: Colors.white,
+                                            size: 20.0,
+                                          ),
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadiusDirectional
+                                              .only(
+                                              topEnd: Radius
+                                                  .circular(
+                                                  10.0),
+                                              bottomEnd: Radius
+                                                  .circular(
+                                                  10.0)),
+                                          color: Colors.blue[300],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

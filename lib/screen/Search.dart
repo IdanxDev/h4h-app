@@ -56,12 +56,14 @@ class _searchState extends State<search> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var userid = prefs.getString(Session.id);
     var res = await http.post(Uri.encodeFull(get_prodlist),
-        headers: {"Accept": "application/json"}, body: {});
+        headers: {"Accept": "application/json"}, body: {"userId":userid});
 
     print(res.body);
     setState(() {
       var convert = json.decode(res.body)['Data'];
       data = convert;
+      print("hhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+      print(data);
       data.forEach((data) {
         _list.add(data);
       });
