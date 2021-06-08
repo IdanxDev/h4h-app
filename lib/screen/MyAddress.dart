@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:h4h/component/appbar.dart';
 
+import 'add_address.dart';
+
 class MyAddress extends StatefulWidget {
   @override
   _MyAddressState createState() => _MyAddressState();
@@ -8,8 +10,8 @@ class MyAddress extends StatefulWidget {
 
 class _MyAddressState extends State<MyAddress> {
   List data = [
-    {"address": "done done"},
-    {"address": "thyagyu thagyu"}
+    {"address": "b-5254, gajanand soc. near rander chowk , surat 395010"},
+    {"address": "thyagyu thagu"}
   ];
 
   @override
@@ -53,6 +55,30 @@ class _MyAddressState extends State<MyAddress> {
       height: MediaQuery.of(context).size.height,
       child: Column(
         children: [
+          TextButton(
+            onPressed: () {
+               Navigator.push(
+              context, MaterialPageRoute(builder: (context) => addaddress()));
+            },
+            child: Row(
+              children: [
+                Icon(
+                  Icons.add_box_rounded,
+                  size: 30,
+                  color: Colors.blue[300],
+                ),
+                SizedBox(width: 8),
+                Text(
+                  "Add New Address",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.blue[300]),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20),
           Container(
             margin: EdgeInsets.only(top: 10),
             height: height,
@@ -69,34 +95,41 @@ class _MyAddressState extends State<MyAddress> {
                     left: 10,
                     right: 10,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          child: Text(
-                            data[index]['address'],
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Column(children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            child: Text(
+                              data[index]['address'],
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.delete_forever,
-                            color: Colors.blueAccent,
-                          ),
-                          onPressed: () {
-                            print("delete");
+                        Container(
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.delete_forever,
+                              color: Colors.blueAccent,
+                            ),
+                            onPressed: () {
+                              print("delete");
 
-                            /*Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => CartPage()));*/
-                          },
+                              /*Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) => CartPage()));*/
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    Divider(
+                      color: Colors.grey,
+                    ),
+                    
+                  ]),
                 );
               },
             ),

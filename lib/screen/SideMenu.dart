@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:h4h/screen/MyAddress.dart';
 import 'package:h4h/screen/MyProfile.dart';
+import 'package:h4h/screen/contactus.dart';
 
 //import 'package:happick/globals.dart' as global;
 //import 'package:shared_preferences/shared_preferences.dart';
@@ -130,8 +131,8 @@ class _SideMenuState extends State<SideMenu> {
               style: TextStyle(color: Colors.black),
             ),
             onTap: () {
-              /*   Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ContactUs()));*/
+                 Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ContactUs()));
             },
           ),
 

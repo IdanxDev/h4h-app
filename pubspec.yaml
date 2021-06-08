@@ -50,6 +50,10 @@ dev_dependencies:
   country_code_picker: ^1.7.0
   shared_preferences: ^0.5.8
   flutter_open_whatsapp: ^0.1.2
+  flutter_google_places:
+  google_maps_webservice:
+  location: ^2.3.5
+  google_maps_flutter: 
 
 
 
@@ -80,6 +84,7 @@ flutter:
      - images/update.jpg
      - images/emptycart.jpg
      - images/emptycart.png
+     - images/location.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
